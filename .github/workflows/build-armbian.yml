@@ -3,7 +3,7 @@
 # Copyright (C) 2021 https://github.com/ophub/amlogic-s9xxx-armbian
 #==========================================================================
 
-name: Build armbian
+name: Build armbian for N1
 
 on:
   repository_dispatch:
@@ -38,7 +38,7 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          apt-get -y -qq install git
+          sudo apt-get -y -qq install git
           git clone --depth 1 https://github.com/maxmib/phicomm-n1.git
           echo "status=success" >> ${GITHUB_OUTPUT}
 

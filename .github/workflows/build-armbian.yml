@@ -57,9 +57,7 @@ jobs:
                 KERNEL_ONLY=no \
                 KERNEL_CONFIGURE=no \
                 COMPRESS_OUTPUTIMAGE=sha,img \
-                ENABLE_EXTENSIONS=bluez-firmware \
-                BOOTSIZE=150 \
-                FIXED_IMAGE_SIZE=2000
+                ENABLE_EXTENSIONS=bluez-firmware 
           echo "build_tag=Armbian_bullseye_N1_$(date +"%m.%d.%H%M")" >> ${GITHUB_OUTPUT}
           echo "status=success" >> ${GITHUB_OUTPUT}
 

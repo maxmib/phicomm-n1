@@ -1,0 +1,77 @@
+#==========================================================================
+# Description: Build Armbian
+# Copyright (C) 2021 https://github.com/ophub/amlogic-s9xxx-armbian
+#==========================================================================
+
+name: Build armbian
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      set_release:
+        description: "Select OS Release."
+        required: false
+        default: "jammy"
+        type: choice
+        options:
+          - jammy
+          - bullseye
+      armbian_size:
+        description: "Set armbian rootfs size(Unit: MiB)."
+        required: false
+        default: "2560"
+
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+
+      - name: Download source code
+        id: down
+        run: |
+          apt-get -y -qq install git
+          git clone --depth 1 https://github.com/maxmib/phicomm-n1.git
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: Compile Armbian [ ${{ env.ARMBIAN_RELEASE }} ]
+        id: compile
+        if: ${{ steps.down.outputs.status }} == 'success' && !cancelled()
+        run: |
+          # Compile method and parameter description: https://docs.armbian.com/Developer-Guide_Build-Options
+          cd phicomm-n1/
+          sudo ./compile.sh \
+                BOARD=phicomm-n1 \
+                BRANCH=current \
+                RELEASE=bullseye \
+                BUILD_MINIMAL=no \
+                BUILD_DESKTOP=no \
+                KERNEL_ONLY=no \
+                KERNEL_CONFIGURE=no \
+                COMPRESS_OUTPUTIMAGE=sha,img \
+                ENABLE_EXTENSIONS=bluez-firmware \
+                BOOTSIZE=150 \
+                FIXED_IMAGE_SIZE=2000
+          echo "build_tag=Armbian_bullseye_N1_$(date +"%m.%d.%H%M")" >> ${GITHUB_OUTPUT}
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+
+      - name: Upload Armbian image to Release
+        uses: ncipollo/release-action@main
+        if: ${{ steps.compile.outputs.status }} == 'success' && !cancelled()
+        with:
+          tag: ${{ steps.compile.outputs.build_tag }}
+          artifacts: phicomm-n1/output/images/*.img.gz
+          allowUpdates: true
+          token: ${{ secrets.GH_TOKEN }}
+
+      
+

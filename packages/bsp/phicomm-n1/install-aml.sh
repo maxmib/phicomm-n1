@@ -53,8 +53,8 @@ dd if="${DEV_EMMC}" of=/root/u-boot-default-aml.img bs=1M count=4
 echo "Start create MBR and partittion"
 
 parted -s "${DEV_EMMC}" mklabel msdos
-parted -s "${DEV_EMMC}" mkpart primary fat32 4M 132M
-parted -s "${DEV_EMMC}" mkpart primary ext4 133M 100%
+parted -s "${DEV_EMMC}" mkpart primary fat32 700M 828M
+parted -s "${DEV_EMMC}" mkpart primary ext4 829M 100%
 
 echo "Start restore u-boot"
 
